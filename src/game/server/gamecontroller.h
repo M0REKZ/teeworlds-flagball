@@ -147,6 +147,8 @@ public:
 	void NextMap();
 
 	virtual void PostReset();
+	
+	void FindFreeSpawn(CSpawnEval *pEval, int Type);
 };
 
 #endif

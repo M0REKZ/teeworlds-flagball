@@ -1,6 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <game/generated/protocol.h>
+#include <base/math.h>
 #include <game/server/gamecontext.h>
 #include "laser.h"
 #include <game/server/gamemodes/fb.h>

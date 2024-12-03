@@ -246,16 +246,12 @@ void IGameController::CycleMap()
 		return;
 
 	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
-	{
-		if(g_Config.m_SvRoundSwap)
-			GameServer()->SwapTeams();
 		return;
-	}
-
+		
 	// handle maprotation
 	const char *pMapRotation = g_Config.m_SvMaprotation;
 	const char *pCurrentMap = g_Config.m_SvMap;
-
+	
 	int CurrentMapLen = str_length(pCurrentMap);
 	const char *pNextMap = pMapRotation;
 	while(*pNextMap)
@@ -263,89 +259,47 @@ void IGameController::CycleMap()
 		int WordLen = 0;
 		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
 			WordLen++;
-
+		
 		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
 		{
 			// map found
 			pNextMap += CurrentMapLen;
 			while(*pNextMap && IsSeparator(*pNextMap))
 				pNextMap++;
-
+				
 			break;
 		}
-
+		
 		pNextMap++;
 	}
-
+	
 	// restart rotation
 	if(pNextMap[0] == 0)
 		pNextMap = pMapRotation;
 
 	// cut out the next map
-	char aBuf[512] = {0};
-	for(int i = 0; i < 511; i++)
+	char aBuf[512];
+	for(int i = 0; i < 512; i++)
 	{
-		static IMapRotation *rotation = RandomMapRotation();
-		pNextMap = rotation->NextMap(pMapRotation + 8, pCurrentMap);
-	}
-	else
-	{
-		// standard rotation
-		pNextMap = pMapRotation;
-		int CurrentMapLen = str_length(pCurrentMap);
-		while(*pNextMap)
+		aBuf[i] = pNextMap[i];
+		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
 		{
-			int WordLen = 0;
-			while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
-				WordLen++;
-			
-			if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
-			{
-				// map found
-				pNextMap += CurrentMapLen;
-				while(*pNextMap && IsSeparator(*pNextMap))
-					pNextMap++;
-					
-				break;
-			}
-			
-			pNextMap++;
+			aBuf[i] = 0;
+			break;
 		}
-		
-		// restart rotation
-		if(pNextMap[0] == 0)
-			pNextMap = pMapRotation;
-
-		// cut out the next map	
-		for(int i = 0; i < 512; i++)
-		{
-			aBuf[i] = pNextMap[i];
-			if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
-			{
-				aBuf[i] = 0;
-				break;
-			}
-		}
-		
-		// skip spaces
-		int i = 0;
-		while(IsSeparator(aBuf[i]))
-			i++;
-
-		pNextMap = &aBuf[i];
 	}
-
+	
 	// skip spaces
 	int i = 0;
 	while(IsSeparator(aBuf[i]))
 		i++;
-
+	
 	m_RoundCount = 0;
-
+	
 	char aBufMsg[256];
-	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", pNextMap);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", pNextMap);
-	str_copy(g_Config.m_SvMap, pNextMap, sizeof(g_Config.m_SvMap));
+	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", &aBuf[i]);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
 }
 
 void IGameController::PostReset()
@@ -808,4 +762,45 @@ int IGameController::ClampTeam(int Team)
 	if(IsTeamplay())
 		return Team&1;
 	return 0;
+}
+
+void IGameController::FindFreeSpawn(CSpawnEval *pEval, int Type)
+{
+	// pick the spawn point that is least occupied and has free space for spawning around it
+	for(int i  = 0; i < m_aNumSpawnPoints[Type]; i++)
+	{
+
+		CCharacter *aEnts[MAX_CLIENTS];
+		int Num = GameServer()->m_World.FindEntities(m_aaSpawnPoints[Type][i], 64, (CEntity**)aEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+		float Score = 0.0f;
+		for(int c = 0; c < Num; ++c)
+			Score += 96.0f - distance(aEnts[c]->m_Pos, m_aaSpawnPoints[Type][i]);
+			
+		if(!pEval->m_Got || pEval->m_Score > Score)
+		{
+			// start, left, up, right, down
+			vec2 Positions[5] = { vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f) };
+
+			// check for free space
+			int Result = -1;
+			for(int Index = 0; Index < 5 && Result == -1; ++Index)
+			{
+				Result = Index;
+				for(int c = 0; c < Num; ++c)
+					if(GameServer()->Collision()->CheckPoint(m_aaSpawnPoints[Type][i]+Positions[Index]) ||
+						distance(aEnts[c]->m_Pos, m_aaSpawnPoints[Type][i]+Positions[Index]) <= aEnts[c]->m_ProximityRadius)
+					{
+						Result = -1;
+						break;
+					}
+			}
+
+			if(Result == -1)
+				continue;	// try next spawn point
+
+			pEval->m_Got = true;
+			pEval->m_Score = Score;
+			pEval->m_Pos = m_aaSpawnPoints[Type][i]+Positions[Result];
+		}
+	}
 }

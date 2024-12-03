@@ -1813,13 +1813,13 @@ void gui_messagebox(const char *title, const char *message)
 	SetFrontProcess(&psn);
 	/* END HACK */
 
-	CreateStandardAlert(kAlertStopAlert,
+	/*CreateStandardAlert(kAlertStopAlert,
 			CFStringCreateWithCString(NULL, title, kCFStringEncodingASCII),
 			CFStringCreateWithCString(NULL, message, kCFStringEncodingASCII),
 			NULL,
 			&theItem);
 
-	RunStandardAlert(theItem, NULL, &itemIndex);
+	RunStandardAlert(theItem, NULL, &itemIndex);*/
 #elif defined(CONF_FAMILY_UNIX)
 	static char cmd[1024];
 	int err;

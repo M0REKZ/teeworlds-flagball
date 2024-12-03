@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <new>
 #include <engine/shared/config.h>
+#include <base/math.h>
 #include <game/server/gamecontext.h>
 #include <game/mapitems.h>
 
@@ -506,6 +507,18 @@ void CCharacter::BecomeNinja()
 	if (m_ActiveWeapon != WEAPON_NINJA)
 		m_LastWeapon = m_ActiveWeapon;
 	m_ActiveWeapon = WEAPON_NINJA;
+	GameServer()->CreateSound(m_Pos, SOUND_PICKUP_NINJA);
+}
+
+void CCharacter::GiveNinja()
+{
+	m_Ninja.m_ActivationTick = Server()->Tick();
+	m_aWeapons[WEAPON_NINJA].m_Got = true;
+	m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
+	if (m_ActiveWeapon != WEAPON_NINJA)
+		m_LastWeapon = m_ActiveWeapon;
+	m_ActiveWeapon = WEAPON_NINJA;
+
 	GameServer()->CreateSound(m_Pos, SOUND_PICKUP_NINJA);
 }
 

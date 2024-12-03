@@ -42,6 +42,8 @@ public:
 	virtual void OnDisconnect (CPlayer *const p);
 	virtual void Snap(int SnappingClient);
         virtual bool CanSpawn(int Team, vec2 *pOutPos);
+private:
+	void DoTeamScoreWincheck();
 };
 
 #endif

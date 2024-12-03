@@ -77,7 +77,7 @@ public:
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
-private:
+//private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 
@@ -101,18 +101,6 @@ private:
 	int m_QueuedWeapon;
 
 	int m_ReloadTimer;
-private:
-	// player controlling this character
-	class CPlayer *m_pPlayer;
-	
-	bool m_Alive;
-
-	// weapon info
-	CEntity *m_apHitObjects[10];
-	int m_NumObjectsHit;
-	
-	int m_QueuedWeapon;
-	
 	int m_AttackTick;
 
 	int m_DamageTaken;

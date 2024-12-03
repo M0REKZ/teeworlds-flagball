@@ -104,6 +104,7 @@ void CGameWorld::RemoveEntity(CEntity *pEnt)
 //
 void CGameWorld::Snap(int SnappingClient)
 {
+
 	for(int i = 0; i < NUM_ENTTYPES; i++)
 		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
 		{
@@ -149,6 +150,7 @@ void CGameWorld::RemoveEntities()
 
 void CGameWorld::Tick()
 {
+
 	if(m_ResetRequested)
 		Reset();
 

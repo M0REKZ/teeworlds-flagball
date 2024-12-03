@@ -54,24 +54,27 @@ public:
 	bool IncreaseHealth(int Amount);
 	bool IncreaseArmor(int Amount);
 	
+ 	//	flagball
+	class CBall* m_pBall;
+	int m_GoalCampTick; //	goal camp counter
+	int m_CampTick; //	camp counter
+	vec2 m_CampPos;
+	void ReleaseBall();
+	void DropBall();
+ 	void ThrowBall(vec2 direction);
+	void CaptureBall(CBall *);
+
+	int m_Health;
 	bool GiveWeapon(int Weapon, int Ammo);
-	void GiveNinja();
+	void GiveNinja(); // GiveNinja calls BecomeNinja and makes the sound
+	void BecomeNinja();
+	void RevokeNinja();
 	
 	void SetEmote(int Emote, int Tick);
 	
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
-	
-private:
-	// player controlling this character
-	class CPlayer *m_pPlayer;
-	
-	bool m_Alive;
 
-	// weapon info
-	CEntity *m_apHitObjects[10];
-	int m_NumObjectsHit;
-	
 	struct WeaponStat
 	{
 		int m_AmmoRegenStart;
@@ -83,9 +86,20 @@ private:
 	
 	int m_ActiveWeapon;
 	int m_LastWeapon;
-	int m_QueuedWeapon;
 	
 	int m_ReloadTimer;
+private:
+	// player controlling this character
+	class CPlayer *m_pPlayer;
+	
+	bool m_Alive;
+
+	// weapon info
+	CEntity *m_apHitObjects[10];
+	int m_NumObjectsHit;
+	
+	int m_QueuedWeapon;
+	
 	int m_AttackTick;
 	
 	int m_DamageTaken;
@@ -108,7 +122,6 @@ private:
 	
 	int m_DamageTakenTick;
 
-	int m_Health;
 	int m_Armor;
 
 	// ninja

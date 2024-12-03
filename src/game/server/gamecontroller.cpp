@@ -8,7 +8,7 @@
 #include "entities/pickup.h"
 #include "gamecontroller.h"
 #include "gamecontext.h"
-
+#include "maprotation.h"
 
 IGameController::IGameController(class CGameContext *pGameServer)
 {
@@ -265,6 +265,7 @@ void IGameController::StartRound()
 	m_aTeamscore[TEAM_RED] = 0;
 	m_aTeamscore[TEAM_BLUE] = 0;
 	m_ForceBalanced = false;
+
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "start round type='%s' teamplay='%d'", m_pGameType, m_GameFlags&GAMEFLAG_TEAMS);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
@@ -293,59 +294,76 @@ void IGameController::CycleMap()
 
 	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
 		return;
-		
+
+	NextMap();
+}
+
+void IGameController::NextMap()
+{
 	// handle maprotation
 	const char *pMapRotation = g_Config.m_SvMaprotation;
 	const char *pCurrentMap = g_Config.m_SvMap;
-	
-	int CurrentMapLen = str_length(pCurrentMap);
-	const char *pNextMap = pMapRotation;
-	while(*pNextMap)
-	{
-		int WordLen = 0;
-		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
-			WordLen++;
-		
-		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
-		{
-			// map found
-			pNextMap += CurrentMapLen;
-			while(*pNextMap && IsSeparator(*pNextMap))
-				pNextMap++;
-				
-			break;
-		}
-		
-		pNextMap++;
-	}
-	
-	// restart rotation
-	if(pNextMap[0] == 0)
-		pNextMap = pMapRotation;
-
-	// cut out the next map	
+	const char *pNextMap;
 	char aBuf[512];
-	for(int i = 0; i < 512; i++)
+
+	if (str_comp_num(pMapRotation, "!random ", 8) == 0)
 	{
-		aBuf[i] = pNextMap[i];
-		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
-		{
-			aBuf[i] = 0;
-			break;
-		}
+		static IMapRotation *rotation = RandomMapRotation();
+		pNextMap = rotation->NextMap(pMapRotation + 8, pCurrentMap);
 	}
-	
-	// skip spaces
-	int i = 0;
-	while(IsSeparator(aBuf[i]))
-		i++;
+	else
+	{
+		// standard rotation
+		pNextMap = pMapRotation;
+		int CurrentMapLen = str_length(pCurrentMap);
+		while(*pNextMap)
+		{
+			int WordLen = 0;
+			while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
+				WordLen++;
+			
+			if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
+			{
+				// map found
+				pNextMap += CurrentMapLen;
+				while(*pNextMap && IsSeparator(*pNextMap))
+					pNextMap++;
+					
+				break;
+			}
+			
+			pNextMap++;
+		}
+		
+		// restart rotation
+		if(pNextMap[0] == 0)
+			pNextMap = pMapRotation;
+
+		// cut out the next map	
+		for(int i = 0; i < 512; i++)
+		{
+			aBuf[i] = pNextMap[i];
+			if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
+			{
+				aBuf[i] = 0;
+				break;
+			}
+		}
+		
+		// skip spaces
+		int i = 0;
+		while(IsSeparator(aBuf[i]))
+			i++;
+
+		pNextMap = &aBuf[i];
+	}
 	
 	m_RoundCount = 0;
 	
 	char aBufMsg[256];
-	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", &aBuf[i]);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
+	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", pNextMap);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", pNextMap);
+	str_copy(g_Config.m_SvMap, pNextMap, sizeof(g_Config.m_SvMap));
 }
 
 void IGameController::PostReset()
@@ -444,7 +462,9 @@ bool IGameController::IsForceBalanced()
 		return true;
 	}
 	else
+	{
 		return false;
+	}
 }
 
 bool IGameController::CanBeMovedOnBalance(int ClientID)
@@ -454,6 +474,7 @@ bool IGameController::CanBeMovedOnBalance(int ClientID)
 
 void IGameController::Tick()
 {
+
 	// do warmup
 	if(m_Warmup)
 	{
@@ -578,6 +599,7 @@ bool IGameController::IsTeamplay() const
 
 void IGameController::Snap(int SnappingClient)
 {
+
 	CNetObj_GameInfo *pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
 	if(!pGameInfoObj)
 		return;

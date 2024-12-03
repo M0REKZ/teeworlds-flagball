@@ -7,7 +7,9 @@
 
 #include "character.h"
 #include "laser.h"
+
 #include "projectile.h"
+#include <game/server/gamemodes/fb.h>
 
 //input count
 struct CInputCount
@@ -35,7 +37,6 @@ CInputCount CountInput(int Prev, int Cur)
 	return c;
 }
 
-
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
 
 // Character, "physical" player's part
@@ -59,6 +60,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_ActiveWeapon = WEAPON_GUN;
 	m_LastWeapon = WEAPON_HAMMER;
 	m_QueuedWeapon = -1;
+	
+ 	m_pBall = NULL;
+	m_GoalCampTick = 0;
+ 	m_CampTick = 0;
+ 	m_CampPos = Pos;
 	
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
@@ -112,7 +118,7 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::HandleNinja()
 {
-	if(m_ActiveWeapon != WEAPON_NINJA)
+	if(m_ActiveWeapon != WEAPON_NINJA || m_pBall)
 		return;
 	
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -120,12 +126,7 @@ void CCharacter::HandleNinja()
 	if ((Server()->Tick() - m_Ninja.m_ActivationTick) > (g_pData->m_Weapons.m_Ninja.m_Duration * Server()->TickSpeed() / 1000))
 	{
 		// time's up, return
-		m_aWeapons[WEAPON_NINJA].m_Got = false;
-		m_ActiveWeapon = m_LastWeapon;
-		if(m_ActiveWeapon == WEAPON_NINJA)
-			m_ActiveWeapon = WEAPON_GUN;
-			
-		SetWeapon(m_ActiveWeapon);
+		RevokeNinja();
 		return;
 	}
 	
@@ -191,8 +192,37 @@ void CCharacter::HandleNinja()
 	}
 
 	return;
+};
+ 
+void CCharacter::ReleaseBall()
+{
+	m_pBall->m_DropTick = Server()->Tick();
+	m_pBall->m_IdleTick = -1;
+	m_pBall->m_pLastCarrier    = GetPlayer();
+	m_pBall->m_LastCarrierTeam = m_pBall->m_pLastCarrier->GetTeam();
+	m_pBall->m_pCarryingCharacter = NULL;
+	m_pBall = NULL;
+
+	RevokeNinja();
 }
 
+void CCharacter::DropBall()
+{
+	m_pBall->m_Vel = vec2(0, 0);
+	ReleaseBall();
+}
+
+void CCharacter::ThrowBall(vec2 direction)
+{
+	if (!m_pBall) return;
+	m_pBall->m_Vel = direction;
+	ReleaseBall();
+}
+
+void CCharacter::CaptureBall(CBall* ball)
+{
+	static_cast<CGameControllerFB *>(GameServer()->m_pController)->GrantBall(this, ball);
+}
 
 void CCharacter::DoWeaponSwitch()
 {
@@ -409,15 +439,27 @@ void CCharacter::FireWeapon()
 		} break;
 		
 		case WEAPON_NINJA:
-		{
-			// reset Hit objects
-			m_NumObjectsHit = 0;
-			
-			m_Ninja.m_ActivationDir = Direction;
-			m_Ninja.m_CurrentMoveTime = g_pData->m_Weapons.m_Ninja.m_Movetime * Server()->TickSpeed() / 1000;
-			m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
+		{			
+ 			if (m_pBall)
+ 			{
+ 				ThrowBall(normalize (vec2 (m_LatestInput.m_TargetX, m_LatestInput.m_TargetY)) * static_cast<float> (g_Config.m_SvfbBallVelocity / 10.0f));  //20.75f;
+				GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+ 				m_ReloadTimer = g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() / 1000;	//	prevent shooting
+ 				return;
+ 			}
+ 			else
+ 			{		
+ 				m_AttackTick = Server()->Tick();
+ 				m_Ninja.m_ActivationDir = Direction;
+ 				m_Ninja.m_CurrentMoveTime = g_pData->m_Weapons.m_Ninja.m_Movetime * Server()->TickSpeed() / 1000;
+ 				m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
+ 				
+ 				// reset Hit objects
+ 				m_NumObjectsHit = 0;
+ 				
+ 				GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE);
+ 			}
 
-			GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE);
 		} break;
 		
 	}
@@ -485,15 +527,29 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 	return false;
 }
 
-void CCharacter::GiveNinja()
+void CCharacter::BecomeNinja()
 {
 	m_Ninja.m_ActivationTick = Server()->Tick();
 	m_aWeapons[WEAPON_NINJA].m_Got = true;
 	m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
 	m_LastWeapon = m_ActiveWeapon;
 	m_ActiveWeapon = WEAPON_NINJA;
-	
+}
+
+void CCharacter::GiveNinja()
+{
+	BecomeNinja();
 	GameServer()->CreateSound(m_Pos, SOUND_PICKUP_NINJA);
+}
+
+void CCharacter::RevokeNinja()
+{
+	m_aWeapons[WEAPON_NINJA].m_Got = false;
+	m_ActiveWeapon = m_LastWeapon;
+	if(m_ActiveWeapon == WEAPON_NINJA)
+		m_ActiveWeapon = WEAPON_GUN;
+		
+	SetWeapon(m_ActiveWeapon);
 }
 
 void CCharacter::SetEmote(int Emote, int Tick)
@@ -545,6 +601,54 @@ void CCharacter::Tick()
 	m_Core.m_Input = m_Input;
 	m_Core.Tick(true);
 	
+    // direct pass of ball
+ 	if (g_Config.m_SvfbDirectPass && m_pBall && m_Core.m_TriggeredEvents & COREEVENT_HOOK_ATTACH_PLAYER && m_Core.m_HookedPlayer != -1)
+ 	{
+		CCharacter *catcher = GameServer()->m_apPlayers[m_Core.m_HookedPlayer]->GetCharacter();
+		if (!catcher->m_pBall)
+		{
+			CBall *ball = m_pBall;
+			ReleaseBall();
+			catcher->CaptureBall(ball);
+ 
+ 			// release hook
+ 			m_Core.m_HookedPlayer = -1;
+ 			m_Core.m_HookState = HOOK_RETRACTED;
+ 			m_Core.m_HookPos = m_Core.m_Pos;
+		}
+ 	};
+ 
+ 	// hook the flag
+ 	if (g_Config.m_SvfbHookBall && !m_pBall && (m_Core.m_HookState == HOOK_FLYING || m_Core.m_TriggeredEvents & (COREEVENT_HOOK_ATTACH_GROUND + COREEVENT_HOOK_HIT_NOHOOK)))
+ 	{
+ 		// Find the closest ball
+ 		CBall *closest_ball = NULL;
+ 		for (int i = 0; i < FB_MAX_BALLS; ++i)
+ 		{
+ 			CBall *b = static_cast<CGameControllerFB *>(GameServer()->m_pController)->m_apBalls[i];
+ 			if (b && !b->m_pCarryingCharacter)
+ 			{
+ 				// It may be not a good idea to pass this to
+ 				// config, but we need some easy way to test
+ 				// these values
+ 				static vec2 ball_offset(0, -38);
+ 				vec2 ball_pos = b->m_Pos + ball_offset;
+ 				vec2 closest_point = closest_point_on_line(m_Core.m_Pos, m_Core.m_HookPos, ball_pos);
+ 				if (distance(ball_pos, closest_point) < g_Config.m_SvfbBallRadius && (!closest_ball || distance(m_Pos, ball_pos) < distance(m_Pos, closest_ball->m_Pos)))
+ 				{
+ 					closest_ball = b;
+ 				};
+ 			};
+ 		};
+ 		if (closest_ball)
+ 		{
+ 			CaptureBall(closest_ball);
+ 			// retract hook
+ 			m_Core.m_HookState = HOOK_RETRACTED;
+ 			m_Core.m_HookPos = m_Core.m_Pos;
+ 		};
+ 	};
+
 	// handle death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
@@ -701,6 +805,16 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
 
+	// do damage Hit sound
+	if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+		GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, CmaskOne(From));
+
+	if (g_Config.m_SvfbInstagib && Weapon == WEAPON_RIFLE)
+	{
+		Die(From, Weapon);
+		return true;
+	}
+
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCID())
 		Dmg = max(1, Dmg/2);
@@ -746,10 +860,6 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 	m_DamageTakenTick = Server()->Tick();
 
-	// do damage Hit sound
-	if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-		GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, CmaskOne(From));
-
 	// check for death
 	if(m_Health <= 0)
 	{
@@ -768,6 +878,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	
 		return false;
 	}
+ 	else
+ 	{
+		// lose flag on every damage
+ 		if (m_pBall && g_Config.m_SvfbBallDamageLose)
+			ReleaseBall();
+ 	}
 
 	if (Dmg > 2)
 		GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG);

@@ -59,9 +59,11 @@ protected:
 	
 	int m_GameFlags;
 	int m_UnbalancedTick;
+
 	bool m_ForceBalanced;
 	
 public:
+
 	const char *m_pGameType;
 
 	bool IsTeamplay() const;
@@ -141,6 +143,7 @@ public:
 	bool CheckTeamBalance();
 	bool CanChangeTeam(CPlayer *pPplayer, int JoinTeam);
 	int ClampTeam(int Team);
+	void NextMap();
 
 	virtual void PostReset();
 };

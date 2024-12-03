@@ -3,6 +3,8 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "laser.h"
+#include <game/server/gamemodes/fb.h>
+#include <engine/shared/config.h>
 
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
@@ -28,10 +30,29 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 
 	m_From = From;
 	m_Pos = At;
+	hit_ball(From, m_Pos);
 	m_Energy = -1;		
 	Hit->TakeDamage(vec2(0.f, 0.f), GameServer()->Tuning()->m_LaserDamage, m_Owner, WEAPON_RIFLE);
 	return true;
 }
+
+void CLaser::hit_ball(vec2 from, vec2 to) {
+ 	if (g_Config.m_SvfbLaserMomentum == 0) return;
+ 	for (int i = 0; i < FB_MAX_BALLS; ++i)
+ 	{
+ 		CBall *ball = static_cast<CGameControllerFB *>(GameServer()->m_pController)->m_apBalls[i];
+ 		if (!ball || ball->m_pCarryingCharacter) continue;
+ 		vec2 ball_pos = ball->m_Pos + vec2(g_Config.m_SvfbBallOffsetX, -g_Config.m_SvfbBallOffsetY);
+ 		if (distance(ball_pos, closest_point_on_line(from, to, ball_pos)) < g_Config.m_SvfbBallRadius)
+ 		{
+ 			ball->m_Vel += normalize(to - from) * g_Config.m_SvfbLaserMomentum * 0.1f;
+ 			ball->m_DropTick = Server()->Tick();
+ 			ball->m_pLastCarrier = GameServer()->m_apPlayers[m_Owner];
+ 			ball->m_LastCarrierTeam = GameServer()->m_apPlayers[m_Owner]->GetTeam();
+                        static_cast<CGameControllerFB *>(GameServer()->m_pController)->SetBallColor(ball, ball->m_LastCarrierTeam);
+ 		}
+ 	};
+}; 
 
 void CLaser::DoBounce()
 {
@@ -50,6 +71,7 @@ void CLaser::DoBounce()
 	{
 		if(!HitCharacter(m_Pos, To))
 		{
+			hit_ball(m_Pos, To);
 			// intersected
 			m_From = m_Pos;
 			m_Pos = To;
@@ -74,6 +96,7 @@ void CLaser::DoBounce()
 	{
 		if(!HitCharacter(m_Pos, To))
 		{
+			hit_ball(m_Pos, To);
 			m_From = m_Pos;
 			m_Pos = To;
 			m_Energy = -1;

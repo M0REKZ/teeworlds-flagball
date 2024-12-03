@@ -16,6 +16,7 @@ public:
 	
 protected:
 	bool HitCharacter(vec2 From, vec2 To);
+	void hit_ball(vec2 from, vec2 to);
 	void DoBounce();
 	
 private:

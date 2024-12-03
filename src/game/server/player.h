@@ -32,6 +32,10 @@ public:
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
 	void OnDisconnect(const char *pReason);
 	
+ 	//	flagball
+	int m_NumOwngoals; //	counter for own-goals
+ 	bool m_OwngoalWarned;	//	own goal warning (only shown once)
+	
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
 	
@@ -95,16 +99,16 @@ public:
 		int m_Max;	
 	} m_Latency;
 	
-private:
+
+//private:
 	CCharacter *Character;
 	CGameContext *m_pGameServer;
-	
+	int m_ClientID;
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const;
 	
 	//
 	bool m_Spawning;
-	int m_ClientID;
 	int m_Team;
 };
 

@@ -13,6 +13,7 @@
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/mod.h"
+#include "gamemodes/fb.h"
 
 enum
 {
@@ -380,6 +381,7 @@ void CGameContext::SendTuningParams(int ClientID)
 
 void CGameContext::OnTick()
 {
+
 	// check tuning
 	CheckPureTuning();
 
@@ -512,6 +514,18 @@ void CGameContext::OnClientEnter(int ClientID)
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf); 
 
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
+	
+ 	if (str_comp(m_pController->m_pGameType, "FB") == 0 || str_comp(m_pController->m_pGameType, "iFB") == 0)
+ 	{
+ 		// Send MOD-version string
+ 		str_format(aBuf, sizeof (aBuf), "FlagBall version: %s", MOD_VERSION);
+ 		SendChatTarget(ClientID, aBuf);
+ 		
+ 		// Send welcome message
+ 		if (str_length(g_Config.m_SvfbWelcomeMessage))
+ 			SendChatTarget(ClientID, g_Config.m_SvfbWelcomeMessage);
+ 	}
+
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	m_VoteUpdate = true;
@@ -943,7 +957,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		
 		SendEmoticon(ClientID, pMsg->m_Emoticon);
 	}
-	else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
+	else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused && g_Config.m_SvfbSelfKill)
 	{
 		if(pPlayer->m_LastKill && pPlayer->m_LastKill+Server()->TickSpeed()*3 > Server()->Tick())
 			return;
@@ -1278,6 +1292,11 @@ void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 }
 
+void CGameContext::ConNextMap(IConsole::IResult *pResult, void *pUserData)
+{
+	((CGameContext *)pUserData)->m_pController->NextMap();
+}
+
 void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	pfnCallback(pResult, pCallbackUserData);
@@ -1314,6 +1333,8 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("clear_votes", "", CFGFLAG_SERVER, ConClearVotes, this, "");
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "");
 
+	Console()->Register("next_map", "", CFGFLAG_SERVER, ConNextMap, this, "Switch to another random map");
+
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }
 
@@ -1338,7 +1359,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//players = new CPlayer[MAX_CLIENTS];
 
 	// select gametype
-	if(str_comp(g_Config.m_SvGametype, "mod") == 0)
+ 	if (str_comp(g_Config.m_SvGametype, "fb") == 0)
+ 		m_pController = new CGameControllerFB(this);
+	else if(str_comp(g_Config.m_SvGametype, "mod") == 0)
 		m_pController = new CGameControllerMOD(this);
 	else if(str_comp(g_Config.m_SvGametype, "ctf") == 0)
 		m_pController = new CGameControllerCTF(this);

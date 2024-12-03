@@ -11,9 +11,18 @@ public:
 	class CServerEntry
 	{
 	public:
+		enum
+		{
+			STATE_INVALID=0,
+			STATE_PENDING,
+			STATE_READY,
+			MAX_TOKEN=0xFF
+		};
+
 		NETADDR m_Addr;
 		int64 m_RequestTime;
-		int m_GotInfo;
+		int m_InfoState;
+		int m_CurrentToken;	// the token is to keep server refresh separated from each other
 		CServerInfo m_Info;
 
 		CServerEntry *m_pNextIp; // ip hashed list
@@ -49,7 +58,7 @@ public:
 	void Set(const NETADDR &Addr, int Type, int Token, const CServerInfo *pInfo);
 	void Request(const NETADDR &Addr) const;
 
-	void SetBaseInfo(class CNetClient *pClient, const char *pNetVersion);
+	void SetBaseInfo(class CNetClient *pClient, const char *pNetVersion, const char *pGameVersion);
 
 private:
 	CNetClient *m_pNetClient;
@@ -57,6 +66,7 @@ private:
 	class IConsole *m_pConsole;
 	class IFriends *m_pFriends;
 	char m_aNetVersion[128];
+	char m_aGameVersion[128];
 
 	CHeap m_ServerlistHeap;
 	CServerEntry **m_ppServerlist;
@@ -83,7 +93,7 @@ private:
 	char m_aFilterGametypeString[128];
 
 	// the token is to keep server refresh separated from each other
-	int m_CurrentToken;
+	int m_CurrentLanToken;
 
 	int m_ServerlistType;
 	int64 m_BroadcastTime;
@@ -103,7 +113,7 @@ private:
 
 	CServerEntry *Find(const NETADDR &Addr);
 	CServerEntry *Add(const NETADDR &Addr);
- 
+
 	void RemoveRequest(CServerEntry *pEntry);
 	void QueueRequest(CServerEntry *pEntry);
 

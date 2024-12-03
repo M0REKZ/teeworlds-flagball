@@ -9,16 +9,17 @@ class CLaser : public CEntity
 {
 public:
 	CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner);
-	
+
 	virtual void Reset();
 	virtual void Tick();
+	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
-	
+
 protected:
 	bool HitCharacter(vec2 From, vec2 To);
 	void hit_ball(vec2 from, vec2 to);
 	void DoBounce();
-	
+
 private:
 	vec2 m_From;
 	vec2 m_Dir;

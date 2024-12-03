@@ -68,7 +68,7 @@ Automatically record demos
 == Enregistrer automatiquement une démo
 
 Automatically take game over screenshot
-== Sauvegarder les résultats à la fin de la partie
+== Prendre une capture d'écran des résultats
 
 Blue team
 == Équipe bleue
@@ -78,6 +78,9 @@ Blue team wins!
 
 Body
 == Corps
+
+Borderless window
+== Fenêtre sans bordure
 
 Call vote
 == Voter
@@ -144,6 +147,9 @@ Delete demo
 
 Demo details
 == Détails de la démo
+
+Demofile: %s
+== Démo : %s
 
 Demos
 == Démos
@@ -220,11 +226,14 @@ Game info
 Game over
 == Fin de la partie
 
+Game paused
+== Jeu en pause
+
 Game type
 == Type de jeu
 
 Game types:
-== Types de jeu:
+== Types de jeu :
 
 General
 == Général
@@ -237,6 +246,9 @@ Grenade
 
 Hammer
 == Maillet
+
+Handle rendering async from updates
+== Rendre sans attendre les mises à jour
 
 Has people playing
 == Au moins un joueur
@@ -308,7 +320,7 @@ Max demos
 == Nombre maximum de démos
 
 Maximum ping:
-== Ping maximum:
+== Ping maximum :
 
 Miscellaneous
 == Divers
@@ -388,8 +400,14 @@ Pistol
 Play
 == Jouer
 
+Play background music
+== Jouer la musique de fond
+
 Player
 == Joueur
+
+Player country:
+== Nation joueurs :
 
 Player options
 == Joueurs
@@ -457,6 +475,9 @@ Reset filter
 Reset to defaults
 == Réinitialiser
 
+Respawn
+== Réapparaître
+
 Rifle
 == Laser
 
@@ -508,7 +529,7 @@ Shotgun
 Show chat
 == Montrer le chat
 
-Show friends
+Show friends only
 == Montrer les amis
 
 Show ingame HUD
@@ -516,6 +537,9 @@ Show ingame HUD
 
 Show name plates
 == Montrer les pseudonymes
+
+Show only chat messages from friends
+== Afficher seulement les message des amis
 
 Show only supported
 == Ne montrer que les résolutions supportées
@@ -530,13 +554,19 @@ Sound
 == Son
 
 Sound error
-== Erreur de son
+== Erreur audio
 
 Sound volume
-== Volume du son
+== Volume audio
 
 Spectate
 == Regarder
+
+Spectate next
+== Suivre suivant
+
+Spectate previous
+== Suivre précédent
 
 Spectator mode
 == Menu spectateur
@@ -552,6 +582,9 @@ Standard map
 
 Stop record
 == Arrêter
+
+Strict gametype filter
+== Types de jeu exacts
 
 Sudden Death
 == Mort Subite
@@ -579,6 +612,12 @@ The server is running a non-standard tuning on a pure game type.
 
 There's an unsaved map in the editor, you might want to save it before you quit the game.
 == Il y a une carte non-enregistrée dans l'éditeur, vous voulez peut-être l'enregistrer avant de quitter le jeu.
+
+Threaded rendering
+== Rendu en parallèle
+
+Threaded sound loading
+== Chargement des sons en paralèlle
 
 Time limit
 == Temps limite

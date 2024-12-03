@@ -14,11 +14,11 @@ CJobPool::CJobPool()
 void CJobPool::WorkerThread(void *pUser)
 {
 	CJobPool *pPool = (CJobPool *)pUser;
-	
+
 	while(1)
 	{
 		CJob *pJob = 0;
-		
+
 		// fetch job from queue
 		lock_wait(pPool->m_Lock);
 		if(pPool->m_pFirstJob)
@@ -30,8 +30,8 @@ void CJobPool::WorkerThread(void *pUser)
 			else
 				pPool->m_pLastJob = 0;
 		}
-		lock_release(pPool->m_Lock);
-		
+		lock_unlock(pPool->m_Lock);
+
 		// do the job if we have one
 		if(pJob)
 		{
@@ -42,14 +42,14 @@ void CJobPool::WorkerThread(void *pUser)
 		else
 			thread_sleep(10);
 	}
-	
+
 }
 
 int CJobPool::Init(int NumThreads)
 {
 	// start threads
 	for(int i = 0; i < NumThreads; i++)
-		thread_create(WorkerThread, this);
+		thread_init(WorkerThread, this);
 	return 0;
 }
 
@@ -58,9 +58,9 @@ int CJobPool::Add(CJob *pJob, JOBFUNC pfnFunc, void *pData)
 	mem_zero(pJob, sizeof(CJob));
 	pJob->m_pfnFunc = pfnFunc;
 	pJob->m_pFuncData = pData;
-	
+
 	lock_wait(m_Lock);
-	
+
 	// add job to queue
 	pJob->m_pPrev = m_pLastJob;
 	if(m_pLastJob)
@@ -68,8 +68,8 @@ int CJobPool::Add(CJob *pJob, JOBFUNC pfnFunc, void *pData)
 	m_pLastJob = pJob;
 	if(!m_pFirstJob)
 		m_pFirstJob = pJob;
-	
-	lock_release(m_Lock);
+
+	lock_unlock(m_Lock);
 	return 0;
 }
 

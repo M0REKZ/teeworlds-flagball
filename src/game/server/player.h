@@ -11,7 +11,7 @@
 class CPlayer
 {
 	MACRO_ALLOC_POOL_ID()
-	
+
 public:
 	CPlayer(CGameContext *pGameServer, int ClientID, int Team);
 	~CPlayer();
@@ -20,10 +20,10 @@ public:
 
 	void TryRespawn();
 	void Respawn();
-	void SetTeam(int Team);
+	void SetTeam(int Team, bool DoChatMsg=true);
 	int GetTeam() const { return m_Team; };
 	int GetCID() const { return m_ClientID; };
-	
+
 	void Tick();
 	void PostTick();
 	void Snap(int SnappingClient);
@@ -38,7 +38,7 @@ public:
 	
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
-	
+
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -53,7 +53,7 @@ public:
 	int m_SpectatorID;
 
 	bool m_IsReady;
-	
+
 	//
 	int m_Vote;
 	int m_VotePos;
@@ -66,29 +66,30 @@ public:
 	int m_LastChangeInfo;
 	int m_LastEmote;
 	int m_LastKill;
-	
+
 	// TODO: clean this up
-	struct 
+	struct
 	{
 		char m_SkinName[64];
 		int m_UseCustomColor;
 		int m_ColorBody;
 		int m_ColorFeet;
 	} m_TeeInfos;
-	
+
 	int m_RespawnTick;
 	int m_DieTick;
 	int m_Score;
 	int m_ScoreStartTick;
 	bool m_ForceBalanced;
 	int m_LastActionTick;
+	int m_TeamChangeTick;
 	struct
 	{
 		int m_TargetX;
 		int m_TargetY;
 	} m_LatestActivity;
 
-	// network latency calculations	
+	// network latency calculations
 	struct
 	{
 		int m_Accum;
@@ -96,17 +97,17 @@ public:
 		int m_AccumMax;
 		int m_Avg;
 		int m_Min;
-		int m_Max;	
+		int m_Max;
 	} m_Latency;
 	
 
 //private:
-	CCharacter *Character;
+	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
 	int m_ClientID;
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const;
-	
+
 	//
 	bool m_Spawning;
 	int m_Team;

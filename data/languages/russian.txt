@@ -5,7 +5,7 @@
 == %d байт
 
 %d of %d servers, %d players
-== %d/%d серверов, %d игроков
+== %d из %d серверов, %d игроков
 
 %d%% loaded
 == %d%% загружено
@@ -14,13 +14,13 @@
 == осталось %d сек.
 
 %i minute left
-== Осталось %i минута!
+== Осталась %i минута!
 
 %i minutes left
 == Осталось %i минут!
 
 %i second left
-== Осталось %i секунда!
+== Осталась %i секунда!
 
 %i seconds left
 == Осталось %i секунд!
@@ -47,10 +47,10 @@ All
 == Все
 
 Alpha
-== Прозрачн..
+== Прозрачн.
 
 Always show name plates
-== Всегда показывать ники игроков
+== Всегда показывать имена игроков
 
 Are you sure that you want to delete the demo?
 == Вы уверены, что хотите удалить демо?
@@ -62,13 +62,13 @@ Are you sure that you want to remove the player from your friends list?
 == Вы уверены, что хотите удалить игрока из друзей?
 
 As this is the first time you launch the game, please enter your nick name below. It's recommended that you check the settings to adjust them to your liking before joining a server.
-== Так как это ваш первый запуск игры, пожалуйста, введите свой ник в поле ниже. Также рекоммендуется проверить настройки игры и поменять некоторые из них перед тем, как начать играть.
+== Пожалуйста, введите своё имя. Также рекоммендуется проверить настройки игры и поменять некоторые из них перед тем, как начать играть.
 
 Automatically record demos
 == Автоматически записывать демо
 
 Automatically take game over screenshot
-== Автоматически снимать скриншот
+== Делать снимок результатов игры
 
 Blue team
 == Синие
@@ -78,6 +78,9 @@ Blue team wins!
 
 Body
 == Тело
+
+Borderless window
+== Окно без рамки
 
 Call vote
 == Голосовать
@@ -95,7 +98,7 @@ Client
 == Клиент
 
 Close
-== Закрыть
+== Выход
 
 Compatible version
 == Совместимая версия
@@ -119,7 +122,7 @@ Count players only
 == Считать только игроков
 
 Country
-== Страна
+== Флаг вашей страны
 
 Crc:
 == Crc:
@@ -145,6 +148,9 @@ Delete demo
 Demo details
 == Детали демо
 
+Demofile: %s
+== Демо: %s
+
 Demos
 == Демо
 
@@ -155,7 +161,7 @@ Disconnected
 == Отключено
 
 Display Modes
-== Режимы дисплея
+== Разрешение экрана
 
 Downloading map
 == Скачивание карты
@@ -167,7 +173,7 @@ Dynamic Camera
 == Динамическая камера
 
 Emoticon
-== Эмоция
+== Эмоции
 
 Enter
 == Вход
@@ -220,6 +226,9 @@ Game info
 Game over
 == Игра окончена
 
+Game paused
+== Игра остановлена
+
 Game type
 == Тип игры
 
@@ -233,19 +242,22 @@ Graphics
 == Графика
 
 Grenade
-== Граната
+== Гранатомёт
 
 Hammer
-== Молоток
+== Молот
+
+Handle rendering async from updates
+== Обрабатывать прорисовку асинхронно из обновлений
 
 Has people playing
-== Сервер не пустой
+== Не пустой сервер
 
 High Detail
 == Высокая детализация
 
 Hook
-== Веревка
+== Крюк
 
 Host address
 == Адрес сервера
@@ -266,7 +278,7 @@ Join blue
 == За синих
 
 Join game
-== Наблюдать
+== Играть
 
 Join red
 == За красных
@@ -302,10 +314,10 @@ Map:
 == Карта:
 
 Max Screenshots
-== Макс. кол-во скриншотов
+== Максимальное количество снимков
 
 Max demos
-== Мак. кол-во демо
+== Максимальное количество демо
 
 Maximum ping:
 == Макс. пинг:
@@ -317,13 +329,13 @@ Mouse sens.
 == Чувств. мыши
 
 Move left
-== Влево
+== Шаг влево
 
 Move player to spectators
-== Переместить игрока в наблюдателей
+== Сделать наблюдателем
 
 Move right
-== Вправо
+== Шаг вправо
 
 Movement
 == Перемещение
@@ -334,8 +346,11 @@ Mute when not active
 Name
 == Имя
 
+Name plates size
+== Размер
+
 Netversion:
-== Сетевая версия
+== Версия:
 
 New name:
 == Новое имя
@@ -347,7 +362,7 @@ Next weapon
 == След. оружие
 
 Nickname
-== Ник
+== Имя
 
 No
 == Нет
@@ -359,10 +374,10 @@ No servers found
 == Сервера не найдены
 
 No servers match your filter criteria
-== Нет серверов, отвечающих вашим критериям
+== Нет серверов, подходящих под ваш фильтр
 
 Ok
-== Ок
+== ОК
 
 Open
 == Открыть
@@ -374,7 +389,7 @@ Password
 == Пароль
 
 Password incorrect
-== Неверный пароль
+== Пароль
 
 Ping
 == Пинг
@@ -385,8 +400,14 @@ Pistol
 Play
 == Просмотр
 
+Play background music
+== Играть фоновую музыку
+
 Player
 == Игрок
+
+Player country:
+== Страна:
 
 Player options
 == Опции игрока
@@ -413,7 +434,7 @@ Quit anyway?
 == Выйти?
 
 REC %3d:%02d
-== Запись %3d:%02d
+== REC %3d:%02d
 
 Reason:
 == Причина:
@@ -443,7 +464,7 @@ Remove friend
 == Удалить друга
 
 Rename
-== Переименовать
+== Переименов.
 
 Rename demo
 == Переименовать демо
@@ -454,8 +475,11 @@ Reset filter
 Reset to defaults
 == Сбросить настройки
 
+Respawn
+== Возрождение
+
 Rifle
-== Лазер
+== Бластер
 
 Round
 == Раунд
@@ -464,7 +488,7 @@ Sample rate
 == Частота
 
 Sat.
-== Контраст.
+== Контраст
 
 Score
 == Очки
@@ -476,10 +500,10 @@ Score limit
 == Лимит очков
 
 Scoreboard
-== Ход игры
+== Табло
 
 Screenshot
-== Скриншот
+== Снимок
 
 Server address:
 == Адрес сервера
@@ -505,20 +529,23 @@ Shotgun
 Show chat
 == Показать чат
 
-Show friends
-== Показывать друзей
+Show friends only
+== Только с друзьями
 
 Show ingame HUD
-== Показывать внутриигроврй HUD
+== Показывать внутриигровой HUD
 
 Show name plates
-== Показывать ники игроков
+== Показывать имена игроков
+
+Show only chat messages from friends
+== Показывать сообщения только от друзей
 
 Show only supported
-== Только поддерживаемые режимы
+== Показывать только поддерживаемые разрешения экрана
 
 Size:
-== Размер
+== Размер:
 
 Skins
 == Скины
@@ -527,7 +554,7 @@ Sound
 == Звук
 
 Sound error
-== Ошибка звука
+== Звуковая ошибка
 
 Sound volume
 == Громкость звука
@@ -535,8 +562,14 @@ Sound volume
 Spectate
 == Наблюдать
 
+Spectate next
+== Наблюдать след.
+
+Spectate previous
+== Наблюдать пред.
+
 Spectator mode
-== Режим наблюдателя
+== Наблюдатель
 
 Spectators
 == Наблюдатели
@@ -548,7 +581,10 @@ Standard map
 == Стандартная карта
 
 Stop record
-== Остановить запись
+== Стоп
+
+Strict gametype filter
+== Строгий фильтр р-мов
 
 Sudden Death
 == Быстрая смерть
@@ -577,14 +613,20 @@ The server is running a non-standard tuning on a pure game type.
 There's an unsaved map in the editor, you might want to save it before you quit the game.
 == Есть несохранённая карта в редакторе, Вы можете сохранить её перед тем, как выйти.
 
+Threaded rendering
+== Потоковая прорисовка
+
+Threaded sound loading
+== Потоковая загрузка звука
+
 Time limit
-== Лимит
+== Лимит времени
 
 Time limit: %d min
-== Лимит по времени: %d
+== Лимит времени: %d
 
 Try again
-== Попробовать снова
+== ОК
 
 Type
 == Тип
@@ -605,7 +647,7 @@ Use sounds
 == Использовать звуки
 
 Use team colors for name plates
-== Использовать командные цвета для таблицы
+== Командные цвета для имен игроков
 
 V-Sync
 == Вертикальная синхронизация
@@ -650,12 +692,9 @@ Your skin
 == Ваш скин
 
 no limit
-== нет лимита
+== Без лимита
 
 ##### needs translation #####
-
-Name plates size
-== 
 
 ##### old translations #####
 

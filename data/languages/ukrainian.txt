@@ -50,7 +50,7 @@ Chat
 == Чат
 
 Close
-== Закрити
+== Зачинити
 
 Compatible version
 == Сумісна версія
@@ -86,10 +86,10 @@ Demos
 == Демо
 
 Disconnect
-== # Відключитись
+== Від'єднатись
 
 Disconnected
-== Відключено
+== Від'єднанно
 
 Display Modes
 == Режими дисплея
@@ -155,7 +155,7 @@ Game type
 == Тип гри
 
 Game types:
-== Тип гри:
+== Типи гри:
 
 General
 == Основні
@@ -164,7 +164,7 @@ Graphics
 == Графіка
 
 Grenade
-== Граната
+== Ракетниця
 
 Hammer
 == Молоток
@@ -215,7 +215,7 @@ Lht.
 == Яскравість
 
 Loading
-== Завантиження
+== Завантаження
 
 MOTD
 == MOTD
@@ -245,7 +245,7 @@ Mute when not active
 == Глушити звуки, коли гра неактивна
 
 Name
-== Імя
+== Ім'я
 
 News
 == Новини
@@ -332,7 +332,7 @@ Remote console
 == Консоль сервера
 
 Reset filter
-== Сикнути фільтри
+== Скинути фільтри
 
 Reset to defaults
 == Скинути налаштування
@@ -522,6 +522,9 @@ Automatically record demos
 Automatically take game over screenshot
 == 
 
+Borderless window
+== 
+
 Change settings
 == 
 
@@ -549,10 +552,19 @@ Delete demo
 Demo details
 == 
 
+Demofile: %s
+== 
+
 Free-View
 == 
 
 Friends
+== 
+
+Game paused
+== 
+
+Handle rendering async from updates
 == 
 
 Kick player
@@ -585,6 +597,12 @@ New name:
 Parent Folder
 == 
 
+Play background music
+== 
+
+Player country:
+== 
+
 Player options
 == 
 
@@ -606,16 +624,22 @@ Rename
 Rename demo
 == 
 
+Respawn
+== 
+
 Server address:
 == 
 
 Server filter
 == 
 
-Show friends
+Show friends only
 == 
 
 Show ingame HUD
+== 
+
+Show only chat messages from friends
 == 
 
 Size:
@@ -624,13 +648,28 @@ Size:
 Sound error
 == 
 
+Spectate next
+== 
+
+Spectate previous
+== 
+
 Spectator mode
+== 
+
+Strict gametype filter
 == 
 
 The audio device couldn't be initialised.
 == 
 
 There's an unsaved map in the editor, you might want to save it before you quit the game.
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
 == 
 
 Type:
